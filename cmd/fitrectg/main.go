@@ -22,7 +22,7 @@ func fitIntoRect(W float64, H float64, rect_W float64, rect_H float64) (int, int
 		H = H * s2
 	}
 
-	return int(math.Round(W)), int(math.Round(W))
+	return int(math.Round(W)), int(math.Round(H))
 }
 
 func main() {
