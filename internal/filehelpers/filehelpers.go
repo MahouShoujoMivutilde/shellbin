@@ -50,7 +50,7 @@ func FilterExt(files []string, searchExt []string) []string {
 	return FilterFiles(files, func(fp string) bool {
 		for _, ext := range searchExt {
 			fpext := strings.ToLower(filepath.Ext(fp))
-			if strings.Contains(fpext, ext) {
+			if fpext == ext {
 				return true
 			}
 		}
