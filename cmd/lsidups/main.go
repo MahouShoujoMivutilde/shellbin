@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"image"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
@@ -35,7 +38,8 @@ var verbose bool
 func init() {
 	searchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
 	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
-	flag.StringVar(&input, "i", ".", "find duplicate images in given directory")
+	flag.StringVar(&input, "i", ".", "find duplicate images in given directory,"+
+		" or use - for reading list of images to compare (from find & fd...)")
 	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
 }
 
@@ -91,7 +95,20 @@ func main() {
 
 	start := time.Now()
 
-	files, _ := filehelpers.GetFiles(input)
+	var files []string
+
+	if input == "-" {
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			file := strings.TrimSpace(scanner.Text())
+			if fpabs, err := filepath.Abs(file); err == nil {
+				files = append(files, fpabs)
+			}
+		}
+	} else {
+		files, _ = filehelpers.GetFiles(input)
+	}
+
 	files = filehelpers.FilterFiles(files, func(fp string) bool {
 		return !filehelpers.IsHidden(fp)
 	})
