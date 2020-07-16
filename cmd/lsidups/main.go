@@ -38,8 +38,8 @@ var verbose bool
 func init() {
 	searchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
 	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
-	flag.StringVar(&input, "i", ".", "find duplicate images in given directory,"+
-		" or use - for reading list of images to compare (from find & fd...)")
+	flag.StringVar(&input, "i", ".", "find duplicate images in given directory, or use - for reading list\n"+
+		"of images to compare (from find & fd...)")
 	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
 }
 
