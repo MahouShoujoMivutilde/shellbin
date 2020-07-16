@@ -61,6 +61,31 @@ func imageMaker(jobs <-chan string, results chan<- Image, wg *sync.WaitGroup) {
 	}
 }
 
+type dups struct {
+	list []string
+	m    sync.Mutex
+}
+
+func dupsSearch(pics <-chan Image, ipics *[]Image, duplicates *dups, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for pic := range pics {
+		for _, ipic := range *ipics {
+			if ipic.fp != pic.fp {
+				if images.Similar(ipic.imgHash, pic.imgHash, ipic.imgSize, pic.imgSize) {
+					duplicates.m.Lock()
+					if !in.ContainsStr(duplicates.list, pic.fp) {
+						duplicates.list = append(duplicates.list, pic.fp)
+					}
+					if !in.ContainsStr(duplicates.list, ipic.fp) {
+						duplicates.list = append(duplicates.list, ipic.fp)
+					}
+					duplicates.m.Unlock()
+				}
+			}
+		}
+	}
+}
+
 func main() {
 	flag.Parse()
 
@@ -71,6 +96,7 @@ func main() {
 		return !filehelpers.IsHidden(fp)
 	})
 
+	// making sure it's image formats go supports
 	files = filehelpers.FilterExt(files, searchExt)
 
 	if verbose {
@@ -79,6 +105,7 @@ func main() {
 
 	start = time.Now()
 
+	// calculating image similarity hashes
 	numJobs := len(files)
 	jobs := make(chan string, numJobs)
 	results := make(chan Image, numJobs)
@@ -95,11 +122,11 @@ func main() {
 	close(jobs)
 
 	wg.Wait()
-	// yay, antipatterns!
+	// yay, antipatterns! (actually it's ok when you sure)
 	close(results)
 
 	if verbose {
-		fmt.Printf("> processed image parameters, took %s\n", time.Since(start))
+		fmt.Printf("> processed images, took %s\n", time.Since(start))
 	}
 
 	var pics []Image
@@ -108,23 +135,24 @@ func main() {
 	}
 
 	start = time.Now()
-	var dups []string
-	for _, pic := range pics {
-		for _, ipic := range pics {
-			if ipic.fp != pic.fp {
-				if images.Similar(ipic.imgHash, pic.imgHash, ipic.imgSize, pic.imgSize) {
-					if !in.ContainsStr(dups, pic.fp) {
-						dups = append(dups, pic.fp)
-					}
-					if !in.ContainsStr(dups, ipic.fp) {
-						dups = append(dups, ipic.fp)
-					}
-				}
-			}
-		}
+
+	// searching for similar images
+	var duplicates dups
+	picschan := make(chan Image, len(pics))
+
+	for w := 1; w <= runtime.NumCPU(); w++ {
+		wg.Add(1)
+		go dupsSearch(picschan, &pics, &duplicates, &wg)
 	}
 
-	for _, fp := range dups {
+	for _, pic := range pics {
+		picschan <- pic
+	}
+	close(picschan)
+
+	wg.Wait()
+
+	for _, fp := range duplicates.list {
 		fmt.Println(fp)
 	}
 
