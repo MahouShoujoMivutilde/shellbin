@@ -70,6 +70,29 @@ type dups struct {
 	m    sync.Mutex
 }
 
+// TODO make this thing more generic
+func insertAfterFp(arr []string, fp string, newFp string) []string {
+	after := -1
+	for i, e := range arr {
+		if e == fp {
+			after = i
+			break
+		}
+	}
+
+	if after == -1 {
+		return arr
+	}
+
+	// increase capacity for new element to fit
+	arr = append(arr, "")
+
+	// shift by 1 all elements after "after"
+	copy(arr[after+1:], arr[after:])
+	arr[after+1] = newFp
+	return arr
+}
+
 func dupsSearch(pics <-chan Image, ipics *[]Image, duplicates *dups, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for pic := range pics {
@@ -77,11 +100,16 @@ func dupsSearch(pics <-chan Image, ipics *[]Image, duplicates *dups, wg *sync.Wa
 			if ipic.fp != pic.fp {
 				if images.Similar(ipic.imgHash, pic.imgHash, ipic.imgSize, pic.imgSize) {
 					duplicates.m.Lock()
-					if !in.ContainsStr(duplicates.list, pic.fp) {
-						duplicates.list = append(duplicates.list, pic.fp)
-					}
-					if !in.ContainsStr(duplicates.list, ipic.fp) {
-						duplicates.list = append(duplicates.list, ipic.fp)
+
+					ipicin := in.ContainsStr(duplicates.list, ipic.fp)
+					picin := in.ContainsStr(duplicates.list, pic.fp)
+
+					if picin && !ipicin {
+						duplicates.list = insertAfterFp(duplicates.list, pic.fp, ipic.fp)
+					} else if !picin && ipicin {
+						duplicates.list = insertAfterFp(duplicates.list, ipic.fp, pic.fp)
+					} else if !picin && !ipicin {
+						duplicates.list = append(duplicates.list, pic.fp, ipic.fp)
 					}
 					duplicates.m.Unlock()
 				}
@@ -174,6 +202,7 @@ func main() {
 	}
 
 	if verbose {
-		fmt.Printf("> search of similar images took %s\n", time.Since(start))
+		fmt.Printf("> found %d similar images, took %s\n",
+			len(duplicates.list), time.Since(start))
 	}
 }
