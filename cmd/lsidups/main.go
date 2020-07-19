@@ -138,8 +138,8 @@ func main() {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			file := strings.TrimSpace(scanner.Text())
-			if fpabs, err := filepath.Abs(file); err == nil {
-				files = append(files, fpabs)
+			if fpAbs, err := filepath.Abs(file); err == nil {
+				files = append(files, fpAbs)
 			}
 		}
 	} else {
@@ -191,7 +191,7 @@ func main() {
 	start = time.Now()
 
 	// searching for similar images
-	picschan := make(chan Image, len(pics))
+	picsChan := make(chan Image, len(pics))
 
 	dupInChan := make(chan []string, len(pics))
 	dupOutChan := make(chan string, len(pics))
@@ -201,13 +201,13 @@ func main() {
 
 	for w := 1; w <= runtime.NumCPU(); w++ {
 		wg.Add(1)
-		go dupsSearch(picschan, &pics, dupInChan, &wg)
+		go dupsSearch(picsChan, &pics, dupInChan, &wg)
 	}
 
 	for _, pic := range pics {
-		picschan <- pic
+		picsChan <- pic
 	}
-	close(picschan)
+	close(picsChan)
 
 	wg.Wait()
 	doneChan <- true
