@@ -65,11 +65,6 @@ func imageMaker(jobs <-chan string, results chan<- Image, wg *sync.WaitGroup) {
 	}
 }
 
-type dups struct {
-	list []string
-	m    sync.Mutex
-}
-
 // TODO make this thing more generic
 func insertAfterFp(arr []string, fp string, newFp string) []string {
 	after := -1
@@ -93,27 +88,41 @@ func insertAfterFp(arr []string, fp string, newFp string) []string {
 	return arr
 }
 
-func dupsSearch(pics <-chan Image, ipics *[]Image, duplicates *dups, wg *sync.WaitGroup) {
+func dupsSearch(pics <-chan Image, ipics *[]Image, dupInChan chan<- []string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for pic := range pics {
 		for _, ipic := range *ipics {
 			if ipic.fp != pic.fp {
 				if images.Similar(ipic.imgHash, pic.imgHash, ipic.imgSize, pic.imgSize) {
-					duplicates.m.Lock()
-
-					ipicin := in.ContainsStr(duplicates.list, ipic.fp)
-					picin := in.ContainsStr(duplicates.list, pic.fp)
-
-					if picin && !ipicin {
-						duplicates.list = insertAfterFp(duplicates.list, pic.fp, ipic.fp)
-					} else if !picin && ipicin {
-						duplicates.list = insertAfterFp(duplicates.list, ipic.fp, pic.fp)
-					} else if !picin && !ipicin {
-						duplicates.list = append(duplicates.list, pic.fp, ipic.fp)
-					}
-					duplicates.m.Unlock()
+					dupInChan <- []string{ipic.fp, pic.fp}
 				}
 			}
+		}
+	}
+}
+
+func dupsHolder(dupInChan <-chan []string, dupOutChan chan<- string, doneChan <-chan bool) {
+	var duplicates []string
+	for {
+		select {
+		case pair := <-dupInChan:
+			ipicFp, picFp := pair[0], pair[1]
+			ipicIn := in.ContainsStr(duplicates, ipicFp)
+			picIn := in.ContainsStr(duplicates, picFp)
+
+			if picIn && !ipicIn {
+				duplicates = insertAfterFp(duplicates, picFp, ipicFp)
+			} else if !picIn && ipicIn {
+				duplicates = insertAfterFp(duplicates, ipicFp, picFp)
+			} else if !picIn && !ipicIn {
+				duplicates = append(duplicates, picFp, ipicFp)
+			}
+		case <-doneChan:
+			for _, fp := range duplicates {
+				dupOutChan <- fp
+			}
+			close(dupOutChan)
+			return
 		}
 	}
 }
@@ -182,12 +191,17 @@ func main() {
 	start = time.Now()
 
 	// searching for similar images
-	var duplicates dups
 	picschan := make(chan Image, len(pics))
+
+	dupInChan := make(chan []string, len(pics))
+	dupOutChan := make(chan string, len(pics))
+	doneChan := make(chan bool)
+
+	go dupsHolder(dupInChan, dupOutChan, doneChan)
 
 	for w := 1; w <= runtime.NumCPU(); w++ {
 		wg.Add(1)
-		go dupsSearch(picschan, &pics, &duplicates, &wg)
+		go dupsSearch(picschan, &pics, dupInChan, &wg)
 	}
 
 	for _, pic := range pics {
@@ -196,13 +210,16 @@ func main() {
 	close(picschan)
 
 	wg.Wait()
+	doneChan <- true
 
-	for _, fp := range duplicates.list {
+	count := 0
+	for fp := range dupOutChan {
 		fmt.Println(fp)
+		count++
 	}
 
 	if verbose {
 		fmt.Printf("> found %d similar images, took %s\n",
-			len(duplicates.list), time.Since(start))
+			count, time.Since(start))
 	}
 }
