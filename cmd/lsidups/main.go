@@ -68,9 +68,12 @@ func usage() {
 func init() {
 	searchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
 	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
-	flag.StringVar(&input, "i", ".", "find duplicate images in given directory, or use - for reading list\n"+
-		"of images to compare (from find & fd...)")
-	flag.BoolVar(&verbose, "v", false, "show time it took to complete key parts of the search")
+	flag.StringVar(&input, "i", ".",
+		"find duplicate images in given directory, or use - for reading list\n"+
+			"of images (one filepath per line) to compare from stdio (from find & fd...)")
+	flag.BoolVar(&verbose, "v", false,
+		"show time it took to complete key parts of the search")
+	flag.Usage = usage
 }
 
 type Image struct {
