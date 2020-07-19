@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+for i in cmd/*; do
+    util=$(basename $i)
+    help="$(eval $util --help 2>&1)"
+echo "
+## $util
+
+\`\`\`
+$help
+\`\`\`
+
+Install:
+
+\`\`\`
+go get github.com/MahouShoujoMivutilde/shellbin/cmd/$util
+\`\`\`
+"
+done
