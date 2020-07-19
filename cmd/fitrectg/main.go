@@ -7,8 +7,27 @@ import (
 	"os"
 )
 
+var DESC string = os.Args[0] + `
+
+  Fits some rectangle (meant for images) into given rectangle while
+  preserving aspect ratio. Outputs new width and height as WxH.
+
+`
+
+var EXAMPLES string = `
+Examples:
+  calculate new dimensions of image with width = 3600 and height = 2404
+  to fit into 456x490 rectangle
+    fitrectg -w 3600 -h 2404 -fw 456 -fh 490
+`
+
 func usage() {
-	fmt.Printf("%[1]s - fit image into given rectangle while preserving aspect ratio\nOutputs new width and height as WxH.", os.Args[0])
+	fmt.Fprint(flag.CommandLine.Output(), DESC)
+
+	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %[1]s:\n", os.Args[0])
+
+	flag.PrintDefaults()
+	fmt.Fprint(flag.CommandLine.Output(), EXAMPLES)
 }
 
 func fitIntoRect(W float64, H float64, rectW float64, rectH float64) (int, int) {

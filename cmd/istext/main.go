@@ -9,11 +9,37 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
+var DESC string = os.Args[0] + `
+
+  Checks if file is a text file, and
+    if it is
+      prints filepath and exits with 0,
+    else
+      exits with 1
+
+  Designed to be used as filter for fd,
+  it is also much faster than
+    file --mime-type -b file.txt + case text/*...
+  ...shenanigans.
+
+`
+
+var EXAMPLES string = `
+Examples:
+  check file is a text file
+    istext file.txt && echo 'this is text file' || echo 'this is not text'
+
+  find only only text files with fd
+    fd -t f -x istext {}
+`
+
 func usage() {
-	fmt.Printf("%[1]s - check if file is a text file,\n" +
-				"and if it is - print filepath\n" +
-				"Usage of %[1]s:\n" +
-				"    %[1]s filename.txt\n", os.Args[0])
+	fmt.Fprint(flag.CommandLine.Output(), DESC)
+
+	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %[1]s:\n", os.Args[0])
+
+	flag.PrintDefaults()
+	fmt.Fprint(flag.CommandLine.Output(), EXAMPLES)
 }
 
 func main() {

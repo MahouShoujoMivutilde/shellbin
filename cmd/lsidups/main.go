@@ -35,6 +35,36 @@ var searchExt extensions
 var input string
 var verbose bool
 
+var DESC string = os.Args[0] + `
+
+  Is a tool for finding image dupicates (or just similar images).
+  Outputs grouped by similarity images (one filepath per line) to stdio
+  so you can processes them as you please.
+
+`
+
+var EXAMPLES string = `
+Examples:
+  find duplicates in ~/Pictures
+    lsidups -i ~/Pictures > dups.txt
+
+  or compare just selected images
+    fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
+    lsidups -i - < yourlist.txt > dups.txt
+
+  then processes them in any image viewer that can read stdio (sxiv, imv...)
+    sxiv -io < dups.txt
+`
+
+func usage() {
+	fmt.Fprint(flag.CommandLine.Output(), DESC)
+
+	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %[1]s:\n", os.Args[0])
+
+	flag.PrintDefaults()
+	fmt.Fprint(flag.CommandLine.Output(), EXAMPLES)
+}
+
 func init() {
 	searchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
 	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
