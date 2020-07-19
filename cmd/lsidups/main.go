@@ -38,8 +38,8 @@ var verbose bool
 var DESC string = os.Args[0] + `
 
   Is a tool for finding image dupicates (or just similar images).
-  Outputs grouped by similarity images (one filepath per line) to stdio
-  so you can processes them as you please.
+  Outputs images grouped by similarity (one filepath per line) to stdio
+  so you can process them as you please.
 
 `
 
@@ -52,7 +52,7 @@ Examples:
     fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
     lsidups -i - < yourlist.txt > dups.txt
 
-  then processes them in any image viewer that can read stdio (sxiv, imv...)
+  then process them in any image viewer that can read stdio (sxiv, imv...)
     sxiv -io < dups.txt
 `
 
@@ -69,8 +69,8 @@ func init() {
 	searchExt = extensions{".jpg", ".jpeg", ".png", ".gif"}
 	flag.Var(&searchExt, "e", "image extensions (with dots) to look for")
 	flag.StringVar(&input, "i", ".",
-		"find duplicate images in given directory, or use - for reading list\n"+
-			"of images (one filepath per line) to compare from stdio (from find & fd...)")
+		"directory to search (recursively) for duplicates, when set to - can take list of images\n"+
+			"to compare from stdio (one filepath per line, like from find & fd...)")
 	flag.BoolVar(&verbose, "v", false,
 		"show time it took to complete key parts of the search")
 	flag.Usage = usage

@@ -48,7 +48,7 @@ istext
     else
       exits with 1
 
-  Designed to be used as filted for fd,
+  Designed to be used as filter for fd,
   it is also much faster than
     file --mime-type -b file.txt + case text/*...
   ...shenanigans.
@@ -57,7 +57,7 @@ Usage of istext:
 
 Examples:
   check file is a text file
-    istext file.txt && echo 'this is text file ' || echo 'this is not text'
+    istext file.txt && echo 'this is text file' || echo 'this is not text'
 
   find only only text files with fd
     fd -t f -x istext {}
@@ -76,15 +76,15 @@ go get github.com/MahouShoujoMivutilde/shellbin/cmd/istext
 lsidups
 
   Is a tool for finding image dupicates (or just similar images).
-  Outputs grouped by similarity images (one filepath per line) to stdio
-  so you can processes them as you please.
+  Outputs images grouped by similarity (one filepath per line) to stdio
+  so you can process them as you please.
 
 Usage of lsidups:
   -e value
     	image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif)
   -i string
-    	find duplicate images in given directory, or use - for reading list
-    	of images (one filepath per line) to compare from stdio (from find & fd...) (default ".")
+    	directory to search (recursively) for duplicates, when set to - can take list of images
+    	to compare from stdio (one filepath per line, like from find & fd...) (default ".")
   -v	show time it took to complete key parts of the search
 
 Examples:
@@ -95,7 +95,7 @@ Examples:
     fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
     lsidups -i - < yourlist.txt > dups.txt
 
-  then processes them in any image viewer that can read stdio (sxiv, imv...)
+  then process them in any image viewer that can read stdio (sxiv, imv...)
     sxiv -io < dups.txt
 ```
 
