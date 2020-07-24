@@ -72,38 +72,9 @@ go get github.com/MahouShoujoMivutilde/shellbin/cmd/istext
 
 ## lsidups
 
-```
-lsidups
+lsidups is a barebone tool for finding image duplicates (or just similar images) from your terminal. Prints to stdout list of images grouped by similarity to allow later processing with other tools, like sxiv.
 
-  Is a tool for finding image dupicates (or just similar images).
-  Outputs images grouped by similarity (one filepath per line) to stdio
-  so you can process them as you please.
-
-Usage of lsidups:
-  -e value
-    	image extensions (with dots) to look for (default .jpg,.jpeg,.png,.gif)
-  -i string
-    	directory to search (recursively) for duplicates, when set to - can take list of images
-    	to compare from stdio (one filepath per line, like from find & fd...) (default ".")
-  -v	show time it took to complete key parts of the search
-
-Examples:
-  find duplicates in ~/Pictures
-    lsidups -i ~/Pictures > dups.txt
-
-  or compare just selected images
-    fd 'mashu' -e png --changed-within 2weeks ~/Pictures > yourlist.txt
-    lsidups -i - < yourlist.txt > dups.txt
-
-  then process them in any image viewer that can read stdio (sxiv, imv...)
-    sxiv -io < dups.txt
-```
-
-Install:
-
-```
-go get github.com/MahouShoujoMivutilde/shellbin/cmd/lsidups
-```
+[Moved here](https://github.com/MahouShoujoMivutilde/lsidups).
 
 
 ## urlesc
