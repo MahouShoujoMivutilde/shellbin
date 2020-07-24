@@ -44,8 +44,16 @@ func usage() {
 
 func main() {
 	flag.Usage = usage
+	verbose := flag.Bool("v", false, "print detected mimetype to stderr")
 	flag.Parse()
 	input := flag.Arg(0)
+
+	textPatt := []string{
+		"text/", "/xml", "application/json",
+		"application/postscript", "application/rss+xml",
+		"application/atom+xml", "application/javascript",
+		"application/x-python",
+	}
 
 	if input == "" {
 		flag.Usage()
@@ -54,7 +62,11 @@ func main() {
 
 	mime, _ := mimetype.DetectFile(input)
 
-	for _, pattern := range []string{"text/", "/xml", "application/json"} {
+	if *verbose {
+		fmt.Fprintln(os.Stderr, mime)
+	}
+
+	for _, pattern := range textPatt {
 		if strings.Contains(strings.ToLower(mime.String()), pattern) {
 			fmt.Println(input)
 			os.Exit(0)
