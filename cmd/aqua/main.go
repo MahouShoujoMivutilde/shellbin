@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/corona10/goimagehash"
+	"github.com/vitali-fedulov/images"
 )
 
 func main() {
@@ -75,4 +76,13 @@ func main() {
 	fmt.Printf("phash big: %v\n", distance)
 	fmt.Printf(" a size: %v\n", hash3.Bits())
 	fmt.Printf(" b size: %v\n", hash4.Bits())
+
+	hashA, imgSizeA := images.Hash(img1)
+	hashB, imgSizeB := images.Hash(img2)
+
+	if images.Similar(hashA, hashB, imgSizeA, imgSizeB) {
+		fmt.Println("Images are similar.")
+	} else {
+		fmt.Println("Images are distinct.")
+	}
 }
