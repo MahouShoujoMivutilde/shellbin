@@ -15,7 +15,7 @@ var DESC string = os.Args[0] + `
 
   Is a tool for humanizing various thigs (now supports time)
 
-  echo thing | hum -args...
+  echo thing | hum (time) [-t]
 
 `
 
