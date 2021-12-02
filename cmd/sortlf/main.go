@@ -1,0 +1,234 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"time"
+
+	times "gopkg.in/djherbis/times.v1"
+)
+
+
+// TAKEN FROM LF: START
+
+func isDigit(b byte) bool {
+	return '0' <= b && b <= '9'
+}
+
+// This function compares two strings for natural sorting which takes into
+// account values of numbers in strings. For example, '2' is less than '10',
+// and similarly 'foo2bar' is less than 'foo10bar', but 'bar2bar' is greater
+// than 'foo10bar'.
+func naturalLess(s1, s2 string) bool {
+	lo1, lo2, hi1, hi2 := 0, 0, 0, 0
+	for {
+		if hi1 >= len(s1) {
+			return hi2 != len(s2)
+		}
+
+		if hi2 >= len(s2) {
+			return false
+		}
+
+		isDigit1 := isDigit(s1[hi1])
+		isDigit2 := isDigit(s2[hi2])
+
+		for lo1 = hi1; hi1 < len(s1) && isDigit(s1[hi1]) == isDigit1; hi1++ {
+		}
+
+		for lo2 = hi2; hi2 < len(s2) && isDigit(s2[hi2]) == isDigit2; hi2++ {
+		}
+
+		if s1[lo1:hi1] == s2[lo2:hi2] {
+			continue
+		}
+
+		if isDigit1 && isDigit2 {
+			num1, err1 := strconv.Atoi(s1[lo1:hi1])
+			num2, err2 := strconv.Atoi(s2[lo2:hi2])
+
+			if err1 == nil && err2 == nil {
+				return num1 < num2
+			}
+		}
+
+		return s1[lo1:hi1] < s2[lo2:hi2]
+	}
+}
+
+type linkState byte
+
+const (
+	notLink linkState = iota
+	working
+	broken
+)
+
+type file struct {
+	os.FileInfo
+	linkState  linkState
+	linkTarget string
+	path       string
+	dirCount   int
+	accessTime time.Time
+	changeTime time.Time
+	ext        string
+}
+
+func readdir(path string) ([]*file, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	names, err := f.Readdirnames(-1)
+	f.Close()
+
+	files := make([]*file, 0, len(names))
+	for _, fname := range names {
+		fpath := filepath.Join(path, fname)
+
+		lstat, err := os.Lstat(fpath)
+		if os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return files, err
+		}
+
+		var linkState linkState
+		var linkTarget string
+
+		if lstat.Mode()&os.ModeSymlink != 0 {
+			stat, err := os.Stat(fpath)
+			if err == nil {
+				linkState = working
+				lstat = stat
+			} else {
+				linkState = broken
+			}
+			linkTarget, _ = os.Readlink(fpath)
+		}
+
+		ts := times.Get(lstat)
+		at := ts.AccessTime()
+		var ct time.Time
+		// from times docs: ChangeTime() panics unless HasChangeTime() is true
+		if ts.HasChangeTime() {
+			ct = ts.ChangeTime()
+		} else {
+			// fall back to ModTime if ChangeTime cannot be determined
+			ct = lstat.ModTime()
+		}
+
+		// returns an empty string if extension could not be determined
+		// i.e. directories, filenames without extensions
+		ext := filepath.Ext(fpath)
+
+		files = append(files, &file{
+			FileInfo:   lstat,
+			linkState:  linkState,
+			linkTarget: linkTarget,
+			path:       fpath,
+			dirCount:   -1,
+			accessTime: at,
+			changeTime: ct,
+			ext:        ext,
+		})
+	}
+
+	return files, err
+}
+
+func sorted(path string, sortType string) []*file {
+	files, err := readdir(path)
+	if err != nil {
+		panic(err)
+	}
+
+	switch sortType {
+	case "natural":
+		sort.SliceStable(files, func(i, j int) bool {
+			s1, s2 := files[i].Name(), files[j].Name()
+			return naturalLess(s1, s2)
+		})
+	case "name":
+		sort.SliceStable(files, func(i, j int) bool {
+			s1, s2 := files[i].Name(), files[j].Name()
+			return s1 < s2
+		})
+	case "size":
+		sort.SliceStable(files, func(i, j int) bool {
+			return files[i].Size() < files[j].Size()
+		})
+	case "time":
+		sort.SliceStable(files, func(i, j int) bool {
+			return files[i].ModTime().Before(files[j].ModTime())
+		})
+	case "atime":
+		sort.SliceStable(files, func(i, j int) bool {
+			return files[i].accessTime.Before(files[j].accessTime)
+		})
+	case "ctime":
+		sort.SliceStable(files, func(i, j int) bool {
+			return files[i].changeTime.Before(files[j].changeTime)
+		})
+	case "ext":
+		sort.SliceStable(files, func(i, j int) bool {
+			ext1, ext2 := files[i].ext, files[j].ext
+
+			// if the extension could not be determined (directories, files without)
+			// use a zero byte so that these files can be ranked higher
+			if ext1 == "" {
+				ext1 = "\x00"
+			}
+			if ext2 == "" {
+				ext2 = "\x00"
+			}
+
+			name1, name2 := files[i].Name(), files[j].Name()
+
+			// in order to also have natural sorting with the filenames
+			// combine the name with the ext but have the ext at the front
+			return ext1 < ext2 || ext1 == ext2 && name1 < name2
+		})
+	}
+
+	return files
+}
+
+// TAKEN FROM LF: END
+
+func main() {
+	flag.Usage = func() {
+		fmt.Println("sortlf <diretory>")
+		fmt.Println("	like `ls`, but with the sorting algo from `lf`")
+		fmt.Println("	respects `lf_sortby` and `lf_reverse` env. variables")
+	}
+	flag.Parse()
+	path := flag.Arg(0)
+
+	sortType := os.Getenv("lf_sortby")
+	reverse := os.Getenv("lf_reverse")
+	if sortType == "" {
+		panic("lf_sortby is empty")
+	}
+	if sortType == "" {
+		panic("lf_reverse is empty")
+	}
+
+	files := sorted(path, sortType)
+
+	if (reverse == "true") {
+		for i, j := 0, len(files)-1; i < j; i, j = i+1, j-1 {
+			files[i], files[j] = files[j], files[i]
+		}
+	}
+
+	for _, f := range files {
+		fmt.Println(f.Name())
+	}
+}
