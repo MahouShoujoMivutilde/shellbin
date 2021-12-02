@@ -23,7 +23,7 @@ Examples:
     scoperate -id ID -action new-call
 `
 
-const gBasePath string = "/tmp/scoperate.id."
+const gBasePath string = "/tmp/scoperate/id."
 const gTimeFrame time.Duration = 500 * time.Millisecond
 
 func usage() {
