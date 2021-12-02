@@ -5,6 +5,42 @@ A few personal tools that are too small to deserve full blown personal repo, but
 If you'll decide to install some - make sure to have golang and git installed.
 
 
+## sortlf
+
+```
+sortlf <diretory>
+	like `ls`, but with the sorting algo from `lf`
+	respects `lf_sortby` and `lf_reverse` env. variables
+```
+
+Install:
+
+```
+go get github.com/MahouShoujoMivutilde/shellbin/cmd/sortlf
+```
+
+
+## hum
+
+```
+hum
+
+  Is a tool for humanizing various thigs (now supports time)
+
+  echo thing | hum -args...
+
+Usage of hum:
+  -t string
+    	time format, fill with Mon Jan 2 15:04:05 MST 2006, see https://golang.org/src/time/format.go (default "2006-01-02 15:04:05.999999999 -0700")
+```
+
+Install:
+
+```
+go get github.com/MahouShoujoMivutilde/shellbin/cmd/hum
+```
+
+
 
 ## fitrectg
 
