@@ -7,13 +7,80 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
+	"unicode"
 
 	times "gopkg.in/djherbis/times.v1"
 )
 
-
 // TAKEN FROM LF: START
+
+const ignorecase bool = true
+const ignoredia bool = true
+
+var normMap map[rune]rune
+
+func init() {
+	normMap = make(map[rune]rune)
+
+	// (not only) european
+	appendTransliterate(
+		"ěřůøĉĝĥĵŝŭèùÿėįųāēīūļķņģőűëïąćęłńśźżõșțčďĺľňŕšťýžéíñóúüåäöçîşûğăâđêôơưáàãảạ",
+		"eruocghjsueuyeiuaeiulkngoueiacelnszzostcdllnrstyzeinouuaaocisugaadeoouaaaaa",
+	)
+
+	// Vietnamese
+	appendTransliterate(
+		"áạàảãăắặằẳẵâấậầẩẫéẹèẻẽêếệềểễiíịìỉĩoóọòỏõôốộồổỗơớợờởỡúụùủũưứựừửữyýỵỳỷỹđ",
+		"aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiioooooooooooooooooouuuuuuuuuuuyyyyyyd",
+	)
+}
+
+func appendTransliterate(base, norm string) {
+	normRunes := []rune(norm)
+	baseRunes := []rune(base)
+
+	lenNorm := len(normRunes)
+	lenBase := len(baseRunes)
+	if lenNorm != lenBase {
+		panic("Base and normalized strings have differend length: base=" + strconv.Itoa(lenBase) + ", norm=" + strconv.Itoa(lenNorm)) // programmer error in constant length
+	}
+
+	for i := 0; i < lenBase; i++ {
+		normMap[baseRunes[i]] = normRunes[i]
+
+		baseUpper := unicode.ToUpper(baseRunes[i])
+		normUpper := unicode.ToUpper(normRunes[i])
+
+		normMap[baseUpper] = normUpper
+	}
+}
+
+// Remove diacritics and make lowercase.
+func removeDiacritics(baseString string) string {
+	var normalizedRunes []rune
+	for _, baseRune := range baseString {
+		if normRune, ok := normMap[baseRune]; ok {
+			normalizedRunes = append(normalizedRunes, normRune)
+		} else {
+			normalizedRunes = append(normalizedRunes, baseRune)
+		}
+	}
+	return string(normalizedRunes)
+}
+
+func normalize(s1, s2 string) (string, string) {
+	if ignorecase {
+		s1 = strings.ToLower(s1)
+		s2 = strings.ToLower(s2)
+	}
+	if ignoredia {
+		s1 = removeDiacritics(s1)
+		s2 = removeDiacritics(s2)
+	}
+	return s1, s2
+}
 
 func isDigit(b byte) bool {
 	return '0' <= b && b <= '9'
@@ -152,12 +219,12 @@ func sorted(path string, sortType string) []*file {
 	switch sortType {
 	case "natural":
 		sort.SliceStable(files, func(i, j int) bool {
-			s1, s2 := files[i].Name(), files[j].Name()
+			s1, s2 := normalize(files[i].Name(), files[j].Name())
 			return naturalLess(s1, s2)
 		})
 	case "name":
 		sort.SliceStable(files, func(i, j int) bool {
-			s1, s2 := files[i].Name(), files[j].Name()
+			s1, s2 := normalize(files[i].Name(), files[j].Name())
 			return s1 < s2
 		})
 	case "size":
@@ -178,7 +245,7 @@ func sorted(path string, sortType string) []*file {
 		})
 	case "ext":
 		sort.SliceStable(files, func(i, j int) bool {
-			ext1, ext2 := files[i].ext, files[j].ext
+			ext1, ext2 := normalize(files[i].ext, files[j].ext)
 
 			// if the extension could not be determined (directories, files without)
 			// use a zero byte so that these files can be ranked higher
@@ -189,7 +256,7 @@ func sorted(path string, sortType string) []*file {
 				ext2 = "\x00"
 			}
 
-			name1, name2 := files[i].Name(), files[j].Name()
+			name1, name2 := normalize(files[i].Name(), files[j].Name())
 
 			// in order to also have natural sorting with the filenames
 			// combine the name with the ext but have the ext at the front
@@ -222,7 +289,7 @@ func main() {
 
 	files := sorted(path, sortType)
 
-	if (reverse == "true") {
+	if reverse == "true" {
 		for i, j := 0, len(files)-1; i < j; i, j = i+1, j-1 {
 			files[i], files[j] = files[j], files[i]
 		}
