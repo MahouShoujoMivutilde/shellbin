@@ -163,7 +163,7 @@ func readdir(path string) ([]*file, error) {
 			continue
 		}
 		if err != nil {
-			return files, err
+			continue
 		}
 
 		var linkState linkState
