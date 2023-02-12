@@ -16,7 +16,7 @@ sortlf <diretory>
 Install:
 
 ```
-go get github.com/MahouShoujoMivutilde/shellbin/cmd/sortlf
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/sortlf@latest
 ```
 
 
@@ -37,7 +37,7 @@ Usage of hum:
 Install:
 
 ```
-go get github.com/MahouShoujoMivutilde/shellbin/cmd/hum
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/hum@latest
 ```
 
 
@@ -69,7 +69,7 @@ Examples:
 Install:
 
 ```
-go get github.com/MahouShoujoMivutilde/shellbin/cmd/fitrectg
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/fitrectg@latest
 ```
 
 
@@ -102,7 +102,7 @@ Examples:
 Install:
 
 ```
-go get github.com/MahouShoujoMivutilde/shellbin/cmd/istext
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/istext@latest
 ```
 
 
@@ -131,7 +131,7 @@ Examples:
 Install:
 
 ```
-go get github.com/MahouShoujoMivutilde/shellbin/cmd/urlesc
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/urlesc@latest
 ```
 
 
@@ -152,6 +152,6 @@ Examples:
 Install:
 
 ```
-go get github.com/MahouShoujoMivutilde/shellbin/cmd/zlgo
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/zlgo@latest
 ```
 
