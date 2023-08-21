@@ -39,13 +39,11 @@ func main() {
 	}
 
 	img1, _, err := image.Decode(file1)
-
 	if err != nil {
 		panic(err)
 	}
 
 	img2, _, err := image.Decode(file2)
-
 	if err != nil {
 		panic(err)
 	}

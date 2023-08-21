@@ -23,8 +23,10 @@ Examples:
     scoperate -id ID -action new-call
 `
 
-const gBasePath string = "/tmp/scoperate/id."
-const gTimeFrame time.Duration = 500 * time.Millisecond
+const (
+	gBasePath  string        = "/tmp/scoperate/id."
+	gTimeFrame time.Duration = 500 * time.Millisecond
+)
 
 func usage() {
 	fmt.Fprint(flag.CommandLine.Output(), DESC)
@@ -70,7 +72,11 @@ func saveTimes(id string, times []time.Time) error {
 
 func main() {
 	flag.Usage = usage
-	id := flag.String("id", "", "limit scope of actions to given ID; meant for distinguishing different instances of lf")
+	id := flag.String(
+		"id",
+		"",
+		"limit scope of actions to given ID; meant for distinguishing different instances of lf",
+	)
 	action := flag.String("action", "", "pick action: new-call or get-rate")
 	flag.Parse()
 
