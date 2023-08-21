@@ -11,7 +11,7 @@ import (
 	"time"
 	"unicode"
 
-	times "gopkg.in/djherbis/times.v1"
+	"github.com/djherbis/times"
 )
 
 // TAKEN FROM LF: START
