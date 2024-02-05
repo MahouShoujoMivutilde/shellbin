@@ -16,8 +16,10 @@ import (
 
 // TAKEN FROM LF: START
 
-const ignorecase bool = true
-const ignoredia bool = true
+const (
+	ignorecase bool = true
+	ignoredia  bool = true
+)
 
 var normMap map[rune]rune
 
@@ -44,7 +46,13 @@ func appendTransliterate(base, norm string) {
 	lenNorm := len(normRunes)
 	lenBase := len(baseRunes)
 	if lenNorm != lenBase {
-		panic("Base and normalized strings have differend length: base=" + strconv.Itoa(lenBase) + ", norm=" + strconv.Itoa(lenNorm)) // programmer error in constant length
+		panic(
+			"Base and normalized strings have differend length: base=" + strconv.Itoa(
+				lenBase,
+			) + ", norm=" + strconv.Itoa(
+				lenNorm,
+			),
+		) // programmer error in constant length
 	}
 
 	for i := 0; i < lenBase; i++ {
@@ -280,11 +288,15 @@ func main() {
 
 	sortType := os.Getenv("lf_sortby")
 	reverse := os.Getenv("lf_reverse")
+	hidden := os.Getenv("lf_hidden")
 	if sortType == "" {
 		panic("lf_sortby is empty")
 	}
 	if sortType == "" {
 		panic("lf_reverse is empty")
+	}
+	if hidden == "" {
+		panic("lf_hidden is empty")
 	}
 
 	files := sorted(path, sortType)
@@ -296,6 +308,10 @@ func main() {
 	}
 
 	for _, f := range files {
-		fmt.Println(f.Name())
+		basename := f.Name()
+		if hidden == "false" && strings.HasPrefix(basename, ".") {
+			continue
+		}
+		fmt.Println(basename)
 	}
 }
