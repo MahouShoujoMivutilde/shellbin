@@ -9,5 +9,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/kortschak/zalgo v0.0.0-20190131100928-344d6584eb92
 	github.com/vitali-fedulov/images v2.0.1+incompatible
+	golang.org/x/image v0.15.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 )
