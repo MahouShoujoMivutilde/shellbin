@@ -281,10 +281,22 @@ func main() {
 	flag.Usage = func() {
 		fmt.Println("sortlf <diretory>")
 		fmt.Println("	like `ls`, but with the sorting algo from `lf`")
-		fmt.Println("	respects `lf_sortby` and `lf_reverse` env. variables")
+		fmt.Println("	respects `lf_sortby`, `lf_reverse` and `lf_hidden` env. variables")
 	}
 	flag.Parse()
 	path := flag.Arg(0)
+
+	if path == "" {
+		panic("no directory path provided, see sortlf -h")
+	}
+
+	info, err := os.Stat(path)
+	if err != nil {
+		panic(err)
+	}
+	if !info.IsDir() {
+		panic(fmt.Sprintf("%s is not a directory", path))
+	}
 
 	sortType := os.Getenv("lf_sortby")
 	reverse := os.Getenv("lf_reverse")
