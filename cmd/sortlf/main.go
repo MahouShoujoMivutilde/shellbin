@@ -278,6 +278,8 @@ func sorted(path string, sortType string) []*file {
 // TAKEN FROM LF: END
 
 func main() {
+	// XXX: account for setlocal ... sortby
+	// Right now it SILENTLY supersedes lf_sort
 	flag.Usage = func() {
 		fmt.Println("sortlf <diretory>")
 		fmt.Println("	like `ls`, but with the sorting algo from `lf`")
