@@ -9,10 +9,11 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.8
 	github.com/kortschak/zalgo v0.0.0-20190131100928-344d6584eb92
 	github.com/vitali-fedulov/images v2.0.1+incompatible
-	golang.org/x/image v0.23.0
+	golang.org/x/image v0.25.0
 )
 
 require (
-	golang.org/x/net v0.34.0 // indirect
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
+	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 )
