@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -316,9 +317,7 @@ func main() {
 	files := sorted(path, sortType)
 
 	if reverse == "true" {
-		for i, j := 0, len(files)-1; i < j; i, j = i+1, j-1 {
-			files[i], files[j] = files[j], files[i]
-		}
+		slices.Reverse(files)
 	}
 
 	for _, f := range files {
