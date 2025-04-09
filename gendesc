@@ -13,7 +13,7 @@ $help
 Install:
 
 \`\`\`
-go get github.com/MahouShoujoMivutilde/shellbin/cmd/$util
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/$util@latest
 \`\`\`
 "
 done

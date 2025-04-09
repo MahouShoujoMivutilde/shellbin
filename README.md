@@ -1,22 +1,24 @@
 # goshell
 
-A few personal tools that are too small to deserve full blown personal repo, but still quite useful to me, and hopefully you, stranger.
+A few personal tools that are too small to deserve a dedicated repo, but still quite useful to me, and hopefully you, stranger.
 
-If you'll decide to install some - make sure to have golang and git installed.
+If you'll decide to install some - make sure to have go and git installed.
 
 
-## sortlf
+## aqua
 
 ```
-sortlf <diretory>
-	like `ls`, but with the sorting algo from `lf`
-	respects `lf_sortby` and `lf_reverse` env. variables
+Usage of aqua:
+  -a string
+    	file a
+  -b string
+    	file b
 ```
 
 Install:
 
 ```
-go install github.com/MahouShoujoMivutilde/shellbin/cmd/sortlf@latest
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/aqua@latest
 ```
 
 
@@ -25,9 +27,9 @@ go install github.com/MahouShoujoMivutilde/shellbin/cmd/sortlf@latest
 ```
 hum
 
-  Is a tool for humanizing various thigs (now supports time)
+  Is a tool for humanizing various things (now supports time)
 
-  echo thing | hum -args...
+  echo thing | hum (time) [-t]
 
 Usage of hum:
   -t string
@@ -38,38 +40,6 @@ Install:
 
 ```
 go install github.com/MahouShoujoMivutilde/shellbin/cmd/hum@latest
-```
-
-
-
-## fitrectg
-
-```
-fitrectg
-
-  Fits some rectangle (meant for images) into given rectangle while
-  preserving aspect ratio. Outputs new width and height as WxH.
-
-Usage of fitrectg:
-  -fh float
-    	rectangle height
-  -fw float
-    	rectangle width
-  -h float
-    	current image height
-  -w float
-    	current image width
-
-Examples:
-  calculate new dimensions of image with width = 3600 and height = 2404
-  to fit into 456x490 rectangle
-    fitrectg -w 3600 -h 2404 -fw 456 -fh 490
-```
-
-Install:
-
-```
-go install github.com/MahouShoujoMivutilde/shellbin/cmd/fitrectg@latest
 ```
 
 
@@ -90,6 +60,7 @@ istext
   ...shenanigans.
 
 Usage of istext:
+  -v	print detected mimetype to stderr
 
 Examples:
   check file is a text file
@@ -106,11 +77,23 @@ go install github.com/MahouShoujoMivutilde/shellbin/cmd/istext@latest
 ```
 
 
-## lsidups
+## sortlf
 
-lsidups is a barebone tool for finding image duplicates (or just similar images) from your terminal. Prints to stdout list of images grouped by similarity to allow later processing with other tools, like sxiv.
+```
+sortlf <diretory>
+	like `ls`, but with the sorting algo from `lf`
+	respects `lf_sortby`, `lf_reverse` and `lf_hidden` env. variables
+	but it doesn't know about your `setlocal`'s and filter
 
-[Moved here](https://github.com/MahouShoujoMivutilde/lsidups).
+DEPRECATED
+	use `lf -remote "query $id files"` on lf r35+
+```
+
+Install:
+
+```
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/sortlf@latest
+```
 
 
 ## urlesc

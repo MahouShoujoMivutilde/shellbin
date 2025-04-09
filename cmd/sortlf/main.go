@@ -285,6 +285,8 @@ func main() {
 		fmt.Println("sortlf <diretory>")
 		fmt.Println("	like `ls`, but with the sorting algo from `lf`")
 		fmt.Println("	respects `lf_sortby`, `lf_reverse` and `lf_hidden` env. variables")
+		fmt.Println("	but it doesn't know about your `setlocal`'s and filter")
+		fmt.Printf("\nDEPRECATED\n	use `lf -remote \"query $id files\"` on lf r35+\n")
 	}
 	flag.Parse()
 	path := flag.Arg(0)
