@@ -43,39 +43,46 @@ go install github.com/MahouShoujoMivutilde/shellbin/cmd/hum@latest
 ```
 
 
-## istext
+## istextmt
 
 ```
-istext
+istextmt
 
   Checks if file is a text file, and
     if it is
-      prints filepath and exits with 0,
+      prints filepath
     else
-      exits with 1
+      doesn't print anything
 
   Designed to be used as filter for fd,
   it is also much faster than
     file --mime-type -b file.txt + case text/*...
   ...shenanigans.
 
-Usage of istext:
-  -v	print detected mimetype to stderr
+Usage of istextmt:
 
 Examples:
   check file is a text file
-    istext file.txt && echo 'this is text file' || echo 'this is not text'
+    echo "file.txt" | istextmt
+    if it is, it will print it's name, otherwise - skip
 
   find only only text files with fd
-    fd -t f -x istext {}
+    fd -t f | istextmt
 ```
 
 Install:
 
 ```
-go install github.com/MahouShoujoMivutilde/shellbin/cmd/istext@latest
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/istextmt@latest
 ```
 
+On 17k files
+
+* `fd ... | istextmt` takes 200ms
+
+* `fd ... | istext` takes 2s
+
+* `fd -x istext {}` takes 14s (legacy)
 
 ## sortlf
 
