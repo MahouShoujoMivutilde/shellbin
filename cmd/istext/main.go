@@ -13,6 +13,8 @@ import (
 
 var DESC string = os.Args[0] + `
 
+> NOTE: istextmt is much faster, but doesn't support passing files as arguments <
+
   Checks if file is a text file, and
     if it is
       prints filepath and exits with 0,
