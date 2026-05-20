@@ -84,6 +84,25 @@ On 17k files
 
 * `fd -x istext {}` takes 14s (legacy)
 
+
+## reactiont
+
+```
+reactiont
+  Measures reaction time.
+
+  Launch the program. Wait for the GO! sign. Press enter as fast as you can.
+
+Usage of reactiont:
+```
+
+Install:
+
+```
+go install github.com/MahouShoujoMivutilde/shellbin/cmd/reactiont@latest
+```
+
+
 ## sortlf
 
 ```
